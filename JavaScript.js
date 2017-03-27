@@ -1,11 +1,11 @@
 ﻿var x_center = 350;
 var y_center = 350;
 var radius = 300;
-var totalplotlevels = 3;
+var totalplotlevels = 1;
 var origin = 0;
 var circlegroup;
 var highlightcounter = 0; 
-var filename = "carsdata_36.csv"
+var filename = "cars.csv"
 var svg = $('svg');
 //Events 
 
