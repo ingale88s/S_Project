@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="jquery-3.1.1.js"></script>
+    <!--<script src="jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>-->
+    <script src="bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+    <script src="jquery.csv.js"></script>
+    <!--<script src="Starplot-Visualization/svg.js"></script>-->
+    <!--<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>-->
+    <link href="bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet" />
+    <!--<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">-->
+
+    <style>
+               body {
+                   color: #ffbb33;
+               }
+
+               #square:hover {
+                   fill: #0094ff;
+               }
+
+               #square1:focus {
+                   fill: #4cff00;
+               }
+               /*.data:hover{
+                   stroke-width:5;
+                   fill:grey;
+               }*/
+               .data {
+                   stroke-width: 1;
+                   fill: none;
+               }
+
+               .param {
+                   padding-left: 10px;
+               }
+
+               .container-fluid {
+                   background-color: #2a2a2a;
+               }
+
+               table {
+                   display: block;
+                   max-height: 600px;
+                   overflow-y: auto;
+               }
+
+                   table td {
+                       padding: 5px;
+                   }
+
+                       table td select {
+                           color: red;
+                       }
+                #reset{
+                    margin:10px auto;
+                    display:block;
+                    padding:5px;
+                }
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3" id="leftsidebar">
+                <h3 style="color:chartreuse">Filter</h3>
+                <div id="table"></div>
+                <div><button type="reset" id="reset" onclick="resetFilter()">Reset Filter</button></div>
+            </div>
+            <div class="col-md-7">
+                <h3 style="text-align:center; color:aqua">Star plot visualization</h3>
+                <svg width="700" height="700" font-family="sans-serif" font-size="10">
+                    <!--<circle cx="100" cy="100" r="10" />-->
+                    <!--<path id="square" d="M100 100 H 150 V 180 H 100 Z" fill="transparent" stroke="black" stroke-width="5" />
+                    <path id="square1" d="M80 80 H 190 V 220 H 80 Z" fill="transparent" stroke="black" stroke-width="5" />-->
+                </svg>
+            </div>
+            <div class="col-md-2">
+                <h3>Plot Parameters</h3>
+                <h5 style="background:grey; padding:2px">select a file</h5>
+                <div class="param">
+                    <select class="param" id="selectfile">
+                        <option value="novalue">select a file</option>
+                        <option value="cars.csv">cars</option>
+                        <option value="carsdata_16.csv">carsdata_16</option>
+                        <option value="carsdata_36.csv">carsdata_36</option>
+                        <option value="census_data.csv">census_data</option>
+                        <option value="MissingChildren.csv">MissingChildren</option>
+                    </select>
+                </div>
+
+                <label>Dimensions:</label>
+                <h5 style="background:grey; padding:2px">Regular Plot</h5>
+                <label for="cbox" class="param">Regular plot</label><input type="checkbox" id="resetcbox" style="float:right"> <br />
+                <h5 style="background:grey; padding:2px">Shifted origin plot</h5>
+                <label for="cbox" class="param">Shifted origin</label><input type="checkbox" id="cbox" style="float:right"> <br />
+                <h5 style="background:grey; padding:2px">Multilevel</h5>
+                <label class="param">Select plot level:</label><input type="text" id="levels" value="1" style="width:20px; float:right"><br />
+                <input type="checkbox" id="cbox1"> <label for="cbox1">Enable Grid</label><br />
+                <input type="checkbox" id="cbox2"> <label for="cbox1">Highlight Background data</label><br />
+                <h5 style="background:grey; padding:2px">Regular Plot</h5><div class="param"><input type="text" id="radius" value="300" class="param" style="width:100px" /></div><br />
+                <button type="submit" onclick="setValues()">Submit</button>
+            </div>
+        </div>
+    </div>
+    <script src="JavaScript.js"></script>
+</body>
+</html>
