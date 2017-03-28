@@ -11,7 +11,6 @@ var svg = $('svg');
 
 $("#selectfile").change(function () {
     filename = $(this).find('option:selected').val();
-    alert(filename);
     $.ajax({
         //url: "MissingChildren.csv",
         url: filename,
@@ -39,17 +38,43 @@ $("#cbox1").change(function () {
     }
 });
 
-$("svg").on("mouseover",".data", function () {
+$("svg").on("mouseover",".data", function (event) {
     document.body.style.cursor = "pointer";
     $(this)
         .css("stroke-width", "5")
-        .css("stroke","red")
+        .css("stroke", "red")
+    console.log(("pageX: " + event.pageX + ", pageY: " + event.pageY));
+    label1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label1.setAttributeNS(null, "x", event.pageX-380);
+    label1.setAttributeNS(null, "y", event.pageY-27);
+    label1.setAttribute('fill', 'yellow');
+    var index = $(this).attr('name').split('_');
+    i = index[1];
+    label1.textContent = data[i][0];
+    $(svg).append(label1);
+})
+
+$("svg").on("mouseover", ".axis", function (event) {
+    document.body.style.cursor = "pointer";
+    console.log(("pageX: " + event.pageX + ", pageY: " + event.pageY));
+    axislabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    axislabel.setAttributeNS(null, "x", event.pageX - 380);
+    axislabel.setAttributeNS(null, "y", event.pageY - 27);
+    axislabel.setAttribute('fill', 'yellow');
+    var index = $(this).attr('id').split('_');
+    i = index[1];
+    axislabel.textContent = data[0][i];
+    $(svg).append(axislabel);
+})
+.on("mouseout", ".axis", function () {
+    axislabel.remove();
 })
 .on("mouseout", ".data", function () {
     document.body.style.cursor = "auto";
     $(this)
     .css("stroke-width", "1")
     .css("stroke", "white")
+    label1.remove();
 })
 
 .on("click", ".data", function () {
@@ -141,10 +166,15 @@ function traspose(data) {
 function setFilter(transpose_data) {
     var leftsidebar = document.getElementById("leftsidebar");
     var tbl = document.createElement('table');
+    //tbl.setAttribute("class", "table");
     var tbdy = document.createElement('tbody');
     for (i = 0; i < transpose_data.length; i++) {
         uniqueFilterValues = Array.from(new Set(transpose_data[i])); //ES6 set dropdown values
         var tr = document.createElement('tr');
+
+        var td = document.createElement('td');
+        td.appendChild(document.createTextNode(i));
+        tr.appendChild(td);
 
         var td = document.createElement('td');
         td.appendChild(document.createTextNode(uniqueFilterValues[0]));
@@ -256,7 +286,7 @@ function createAxis(svg, dimensions) {
             var cos_theta = x_center + Math.cos(theta) * radius * i;
             var sin_theta = y_center + Math.sin(theta) * radius * i;
             newpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            newpath.setAttributeNS(null, "id", "axis_id" + j);
+            newpath.setAttributeNS(null, "id", "axisid_" + j);
             newpath.setAttributeNS(null, "class", "axis");
             newpath.setAttributeNS(null, "d", "M" + (x) + " " + (y) + "L" + cos_theta + " " + sin_theta);
             newpath.setAttributeNS(null, "stroke", "white");
@@ -317,7 +347,7 @@ function createDatapath(svg, data) {
 
             var newpath, dataline;
             newpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            newpath.setAttributeNS(null, "name", "data_id" + i);
+            newpath.setAttributeNS(null, "name", "dataid_" + i);
             newpath.setAttributeNS(null, "class", "data");
             newpath.setAttributeNS(null, "opacity", 1);
             newpath.setAttributeNS(null, "fill", "none");
@@ -450,5 +480,4 @@ function createDatapath1(svg, subset_data) {
     }
 
 }
-
-
+    
