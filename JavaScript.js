@@ -5,7 +5,7 @@ var totalplotlevels = 1;
 var origin = 0;
 var circlegroup;
 var highlightcounter = 0; 
-var filename = "cars.csv"
+var filename = "FullHealthcareData.csv"
 var svg = $('svg');
 //Events 
 
