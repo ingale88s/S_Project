@@ -5,117 +5,198 @@ var totalplotlevels = 1;
 var origin = 0;
 var circlegroup;
 var highlightcounter = 0; 
-var filename = "FullHealthcareData.csv"
+var filename = "cars_25_U.csv"
+//var filename = "CrimeData.csv"
 var svg = $('svg');
+var rarray = new Array();
+var farray = new Array();
+var farray_bck = new Array();
 //Events 
 
-$("#selectfile").change(function () {
-    filename = $(this).find('option:selected').val();
-    $.ajax({
-        //url: "MissingChildren.csv",
-        url: filename,
-        async: false,
-        success: function (csvd) {
-            data = $.csv.toArrays(csvd);
-            $("#svg").remove();
-            init(data);
+$(document).ready(function () {
+    $("#vertical-menu h3").click(function () {
+        //slide up all the link lists
+            $("#vertical-menu ul ul").slideUp();
+            $('.plus', this).html('+');
+        //slide down the link list below the h3 clicked - only if its closed
+            if (($(this).find("input:checked").length) > 0) {
+                if (!$(this).next().is(":visible")) {
+                    $(this).next().slideDown();
+                    //$(this).remove("span").append('<span class="minus">-</span>');
+                    $('.plus').html('+');
+                    $('.plus', this).html('-');
+                }
+                var index = $(this).attr('id').split('_');
+                farray.push(Number(index[1]));
+                farray.sort((a, b) =>a - b);
+
+                Array.prototype.diff = function (a) {
+                    return this.filter(function (i) { return a.indexOf(i) < 0; });
+                };
+
+                var farray_inverse = farray_bck.diff(farray);
+                
+                rarray = data.map(function (arr) {
+                    return arr.slice();
+                });
+
+                farray_inverse.forEach(function (e) {
+                    rarray = rarray.map(function (item) {
+                        // the 0,2 tells the splice function to remove (skip) the last item in this array
+                        return item.filter(function (el, idx) { return idx !== e});
+
+                    });
+                    
+                })
+                $(Axisgroup).remove();
+                $(circlegroup).remove();
+                $(background).remove();
+                radius = 300;
+                createDatapath(svg, rarray);
+            }
+            else {
+                var index = $(this).attr('id').split('_');
+                i = Number(index[1]);
+                farray.indexOf(i);
+                rarray = rarray.map(function (item) {
+                    // the 0,2 tells the splice function to remove (skip) the last item in this array
+                    return item.filter(function (el, idx) { return idx !== (farray.indexOf(i)) });
+                    
+                });
+                farray.splice(farray.indexOf(i), 1);
+
+                $(Axisgroup).remove();
+                $(circlegroup).remove();
+                $(background).remove();
+                radius = 300;
+                createDatapath(svg, rarray);
+            }
+    })
+
+    $("#selectfile").change(function () {
+        filename = $(this).find('option:selected').val();
+        $.ajax({
+            //url: "MissingChildren.csv",
+            url: filename,
+            async: false,
+            success: function (csvd) {
+                data = $.csv.toArrays(csvd);
+                $("#svg").remove();
+
+                init(data);
+            }
+        });
+    });
+
+    $("#cbox1").change(function () {
+        if (this.checked) {
+            grid = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            svg.append(grid);
+            for (i = 0; i < 10; i++) {
+                var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                $(circle).attr({ "cx": x_center, "cy": y_center, "r": 300 * i / 10, "stroke": "lightgrey", "stroke-width": 1, "fill": "none", "stroke-opacity": 0.3 })
+                $(grid).append(circle);
+            }
+        }
+        else {
+            $(grid).remove();
         }
     });
-});
 
-$("#cbox1").change(function () {
-    if (this.checked) {
-        grid = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        svg.append(grid);
-        for (i = 0; i < 10; i++) {
-            var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            $(circle).attr({ "cx": x_center, "cy": y_center, "r": 300 * i / 10, "stroke": "lightgrey", "stroke-width": 1, "fill": "none", "stroke-opacity":0.3})
-            $(grid).append(circle);
+    $("svg").on("mouseover", ".data", function (event) {
+        document.body.style.cursor = "pointer";
+        $(this)
+            .css("stroke-width", "5")
+            .css("stroke", "red")
+        label1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label1.setAttributeNS(null, "x", event.pageX - 380);
+        label1.setAttributeNS(null, "y", event.pageY - 27);
+        label1.setAttribute('fill', 'yellow');
+        var index = $(this).attr('name').split('_');
+        i = index[1];
+        label1.textContent = data[i][0];
+        $(svg).append(label1);
+    })
+
+    $("svg").on("mouseover", ".axis", function (event) {
+        document.body.style.cursor = "pointer";
+        axislabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        axislabel.setAttributeNS(null, "x", event.pageX - 380);
+        axislabel.setAttributeNS(null, "y", event.pageY - 27);
+        axislabel.setAttribute('fill', 'yellow');
+        var index = $(this).attr('id').split('_');
+        i = index[1];
+        axislabel.textContent = data[0][i];
+        $(svg).append(axislabel);
+    })
+
+    .on("mouseout", ".axis", function () {
+        axislabel.remove();
+    })
+
+    .on("mouseout", ".data", function () {
+        document.body.style.cursor = "auto";
+        $(this)
+        .css("stroke-width", "1")
+        .css("stroke", "white")
+        label1.remove();
+    })
+
+    .on("click", ".data", function () {
+        elmsid = $(this).attr("name");
+        //.css("fill", "#daf7a6").css("fill-opacity", "0.4");
+        var elms = document.getElementsByName(elmsid);
+
+        color1 = getRandomColor();
+
+        for (var i = 0; i < elms.length; i++) {
+            $(elms[i]).removeClass();
+             if ($('.btn-toggle').find('.active').attr('name') == "stroke") {
+                elms[i].style.stroke = color1;
+                $(elms[i]).css("stroke-width", 3);
+
+            }
+            else {
+                $(elms[i]).css("fill", color1);
+                opac = 1 / (i + 1);
+                elms[i].style.opacity = opac;
+
+            }
         }
-    }
-    else {
-        $(grid).remove();
-    }
-});
-
-$("svg").on("mouseover",".data", function (event) {
-    document.body.style.cursor = "pointer";
-    $(this)
-        .css("stroke-width", "5")
-        .css("stroke", "red")
-    console.log(("pageX: " + event.pageX + ", pageY: " + event.pageY));
-    label1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    label1.setAttributeNS(null, "x", event.pageX-380);
-    label1.setAttributeNS(null, "y", event.pageY-27);
-    label1.setAttribute('fill', 'yellow');
-    var index = $(this).attr('name').split('_');
-    i = index[1];
-    label1.textContent = data[i][0];
-    $(svg).append(label1);
-})
-
-$("svg").on("mouseover", ".axis", function (event) {
-    document.body.style.cursor = "pointer";
-    console.log(("pageX: " + event.pageX + ", pageY: " + event.pageY));
-    axislabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    axislabel.setAttributeNS(null, "x", event.pageX - 380);
-    axislabel.setAttributeNS(null, "y", event.pageY - 27);
-    axislabel.setAttribute('fill', 'yellow');
-    var index = $(this).attr('id').split('_');
-    i = index[1];
-    axislabel.textContent = data[0][i];
-    $(svg).append(axislabel);
-})
-.on("mouseout", ".axis", function () {
-    axislabel.remove();
-})
-.on("mouseout", ".data", function () {
-    document.body.style.cursor = "auto";
-    $(this)
-    .css("stroke-width", "1")
-    .css("stroke", "white")
-    label1.remove();
-})
-
-.on("click", ".data", function () {
-    elmsid = $(this).attr("name");
-    //.css("fill", "#daf7a6").css("fill-opacity", "0.4");
-    var elms = document.getElementsByName(elmsid);
-
-    console.log(elms.length)
-    color1 = getRandomColor();
-
-    for (var i = 0; i < elms.length; i++) {
-        $(elms[i]).removeClass();
-        elms[i].style.stroke = color1;
-        $(elms[i]).css("stroke-width" , 3);
-        //opac = 1 / (i + 1);
-        //elms[i].style.opacity = opac;
-    }
-   $(".data").css("stroke","none");
-    //$(".data").not(elms)
-    //    .css("opacity", "0.2");
-   $(".axis").css("opacity", "0.4");
-   console.log("clicked");
-   highlightcounter = highlightcounter + 1;
-})
-
-$("#cbox2").change(function () {
-    if (this.checked) {
-        $(".data").css("stroke", "white");
-        $(".data").css("opacity", "0.2");
-
-    }
-    else {
         $(".data").css("stroke", "none");
-    }
+        //$(".data").not(elms)
+        //    .css("opacity", "0.2");
+        $(".axis").css("opacity", "0.4");
+        highlightcounter = highlightcounter + 1;
+    })
+
+    $("#cbox2").change(function () {
+        if (this.checked) {
+            $(".data").css("stroke", "white");
+            $(".data").css("opacity", "0.2");
+
+        }
+        else {
+            $(".data").css("stroke", "none");
+        }
+    })
+
+    $('.btn-toggle').click(function () {
+        $(this).find('.btn').toggleClass('active');
+        $(this).find('.btn').toggleClass('btn-primary');
+        $(this).find('.btn').toggleClass('btn-default');
+    });
+
+
 })
+
 $.ajax({
     //url: "MissingChildren.csv",
     url:filename,
     async: false,
     success: function (csvd) {
         data = $.csv.toArrays(csvd);
+
         init(data);
 
     }
@@ -126,9 +207,11 @@ function highlightColor(highlightcounter) {
     color = colorArr[highlightcounter];
     return (color);
 }
+
 function resetFilter() {
     location.reload();
 }
+
 function get_random_color() {
     var letters = '0123456789ABCDEF'.split('');
     var color = '#4F';
@@ -137,6 +220,7 @@ function get_random_color() {
     }
     return color;
 }
+
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -145,6 +229,7 @@ function getRandomColor() {
     }
     return color;
 }
+
 function setValues() {
     radius = document.getElementById("radius").value;
     totalplotlevels = document.getElementById("levels").value;
@@ -154,6 +239,7 @@ function setValues() {
     $(background).remove();
     createDatapath(svg,data);
 }
+
 function traspose(data) {
     var transposeArray = data[0].map(function (col, i) {
         return data.map(function (row) {
@@ -163,27 +249,46 @@ function traspose(data) {
     unique = Array.from(new Set(transposeArray))
     return transposeArray;
 }
+
 function setFilter(transpose_data) {
     var leftsidebar = document.getElementById("leftsidebar");
-    var tbl = document.createElement('table');
-    //tbl.setAttribute("class", "table");
-    var tbdy = document.createElement('tbody');
+    var filtDiv = document.createElement('div');
+    filtDiv.setAttribute("id", "vertical-menu");
+    leftsidebar.appendChild(filtDiv);
+    var ul1 = document.createElement("ul");
+    filtDiv.appendChild(ul1);
+    
     for (i = 0; i < transpose_data.length; i++) {
         uniqueFilterValues = Array.from(new Set(transpose_data[i])); //ES6 set dropdown values
-        var tr = document.createElement('tr');
+        farray.push(i);
+        farray_bck.push(i);
+        var li1 = document.createElement("li");
+        var header = document.createElement('h3');
+        header.setAttribute("id", "Filteraxis_" + i)
+        var dspan = document.createElement('span');
+        dspan.setAttribute("class", "plus");
+        dspan.innerHTML = "+";
+        header.appendChild(dspan);
+        dspan = document.createElement('span');
+        dspan.innerHTML = i;
+        header.appendChild(dspan);
+        dspan = document.createElement('span');
+        dspan.innerHTML = uniqueFilterValues[0];
+        header.appendChild(dspan);
 
-        var td = document.createElement('td');
-        td.appendChild(document.createTextNode(i));
-        tr.appendChild(td);
+        var chkbox = document.createElement('input');
+        chkbox.type = 'checkbox';
+        chkbox.checked = true;  
+        chkbox.setAttribute("class","visible_axis")
+        header.appendChild(chkbox);
+        li1.appendChild(header);
 
-        var td = document.createElement('td');
-        td.appendChild(document.createTextNode(uniqueFilterValues[0]));
-        tr.appendChild(td);
+        var section = document.createElement('div');
+        var list = document.createElement('ul');
 
         var s = document.createElement("select");
         s.setAttribute('class', 'filters');
         s.setAttribute('id', 'id_' + i);
-
         var a = uniqueFilterValues[i];
         uniqueFilterValues.splice(0, 1);
         uniqueFilterValues.sort((a, b) =>a - b);
@@ -191,29 +296,32 @@ function setFilter(transpose_data) {
         t.value = 0;
         t.textContent = "Select value";
         s.append(t);
-
         for (j = 0; j < uniqueFilterValues.length; j++) {
             t = document.createElement("option");
             t.value = j;
             t.textContent = uniqueFilterValues[j];
             s.append(t);
         }
-        var td = document.createElement('td');
-        td.appendChild(s);
-        tr.appendChild(td);
-        tbdy.appendChild(tr);
-        tbl.appendChild(tbdy);
-        $('#table').append(tbl);
+
+        var listmember2 = document.createElement('li');
+        listmember2.appendChild(s);
+        list.appendChild(listmember2);
+        li1.appendChild(list);
+        ul1.appendChild(li1);
     }
+
 }
+
 function arraySubset(index, data, filter_value) {
     var result = $.grep(data, function (v, i) {
         return v[index] === filter_value;
     });
-    return(result);
+    console.log(result);
+    return (result);
+    
 }
+
 function init(data) {
-    console.log(data)
     var color = ["red", "black", "orange", "yellow"]
 
 
@@ -222,15 +330,18 @@ function init(data) {
     setFilter(transpose_data);
 
     //create starplot
-    createDatapath(svg,data);
+    createDatapath(svg, data);
+    rarray = data.map(function (arr) {
+        return arr.slice();
+    });
 
     $(".filters").change(function () {
-        var filter_value = $(this).find('option:selected').text();
+         var filter_value = $(this).find('option:selected').text();
         var index = $(this).attr('id').split('_'); //id is in this form id_1, this will take index number
         var subset_data = arraySubset(index[1], data, filter_value);
-        subset_data.splice(0,0,data[0])
+
+        subset_data.splice(0, 0, data[0])
         var subset_datadimensions = subset_data[0].length - 1;
-        console.log(subset_data)
         $(Axisgroup).hide();
         $(circlegroup).hide();
         $(background).hide();
@@ -238,6 +349,7 @@ function init(data) {
         createDatapath1(svg , subset_data);
     });
 }
+
 function normalizeData(data, dimensions) {
     var normalize_data = data.map(function (arr) {
         return arr.slice();
@@ -253,16 +365,19 @@ function normalizeData(data, dimensions) {
     }
     return normalize_data;
 }
+
 function circle(svg, level) {
     var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     $(circle).attr({ "cx": x_center, "cy": y_center, "r": radius * level, id : "circle_"+ level,"stroke": "red", "stroke-width": 1, "fill": "none" })
     $(circlegroup).append(circle);
 }
+
 function point(svg, r, x,y) {
     var point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     $(point).attr({ "cx": x, "cy": y, "r": r*0.1, "stroke": "darkgrey", "stroke-width": 1, "fill": "grey" })
     svg.append(point);
 }
+
 function createAxis(svg, dimensions) {
 
     Axisgroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -270,10 +385,17 @@ function createAxis(svg, dimensions) {
 
     var levelofplotting = 1;
     var axisLabelCounter = 1;
-
+    var totaldimensioncounted = 0;
     for (i = 1; i <= totalplotlevels; i++) {
 
-        dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
+        if (i < totalplotlevels) {
+            dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
+            dimensioncount = Math.floor(dimensioncount);
+            totaldimensioncounted = totaldimensioncounted + dimensioncount;
+        }
+        else {
+            dimensioncount = dimensions - totaldimensioncounted;
+        }
 
         origin = ((i <= 1 && ($('#cbox:checked').length > 0)) ? 0.2: 0);  //Shifting origin
 
@@ -315,13 +437,13 @@ function createAxis(svg, dimensions) {
         levelofplotting = 2 * i + 1;
     }
 }
+
 function createDatapath(svg, data) {
     //calculating radius
     if (totalplotlevels > 1) {
         radius = (radius / totalplotlevels);
         
     }
-   
     //calculating dimensions
     dimensions = data[0].length - 1;
 
@@ -337,10 +459,16 @@ function createDatapath(svg, data) {
     background.setAttributeNS(null, "class", "background");
         var levelofplotting = 1;
         dp = 0;   //dimensionposition
+        var totaldimensioncounted = 0;
     for (k = 1; k <= totalplotlevels; k++) {
-        dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels);
-        dimensioncount = Math.round(dimensioncount);
-
+        if (k < totalplotlevels) {
+            dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
+            dimensioncount = Math.floor(dimensioncount);
+            totaldimensioncounted = totaldimensioncounted + dimensioncount;
+        }
+        else {
+            dimensioncount = dimensions - totaldimensioncounted;
+        }
         origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? 0.3 : 0);  //Shifting origin
 
         for (i = 1; i < normalize_data.length; i++) {
@@ -383,8 +511,6 @@ function createDatapath(svg, data) {
                 //    point(svg, count_datapoint, cos_theta, sin_theta);
                 //}
             }
-
- 
             newpath.setAttributeNS(null, "stroke", "#F0FFF0")
             newpath.setAttributeNS(null, "d", dataline + "z");
             $(background).append(newpath);
@@ -395,6 +521,7 @@ function createDatapath(svg, data) {
     }
 
 }
+
 function createDatapath1(svg, subset_data) {
 
     dimensions = subset_data[0].length - 1;
@@ -417,15 +544,21 @@ function createDatapath1(svg, subset_data) {
         }
     }
 
-    console.log(normalize_data)
     foreground = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(foreground);
     foreground.setAttributeNS(null, "class", "foreground");
     var levelofplotting = 1;
     dp = 0;   //dimensionposition
+    var totaldimensioncounted = 0;
     for (k = 1; k <= totalplotlevels; k++) {
-        dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels);
-        dimensioncount = Math.round(dimensioncount);
+        if (k < totalplotlevels) {
+            dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
+            dimensioncount = Math.floor(dimensioncount);
+            totaldimensioncounted = totaldimensioncounted + dimensioncount;
+        }
+        else {
+            dimensioncount = dimensions - totaldimensioncounted;
+        }
 
         origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? 0.2 : 0);  //Shifting origin
 

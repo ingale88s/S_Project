@@ -3,9 +3,11 @@
 <head>
     <title></title>
     <meta charset="utf-8" />
+    <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
     <script src="jquery-3.1.1.js"></script>
     <!--<script src="jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>-->
     <script src="bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="jquery.csv.js"></script>
     <!--<script src="Starplot-Visualization/svg.js"></script>-->
     <!--<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>-->
@@ -13,96 +15,205 @@
     <!--<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">-->
 
     <style>
-               body {
-                   color: #ffbb33;
-               }
+        body {
+            color: #ffbb33;
+        }
+        #square:hover {
+            fill: #0094ff;
+        }
 
-               #square:hover {
-                   fill: #0094ff;
-               }
-
-               #square1:focus {
-                   fill: #4cff00;
-               }
-               /*.data:hover{
+        #square1:focus {
+            fill: #4cff00;
+        }
+        /*.data:hover{
                    stroke-width:5;
                    fill:grey;
                }*/
-               .data {
-                   stroke-width: 1;
-                   fill: none;
-               }
+        .data {
+            stroke-width: 1;
+            fill: none;
+        }
 
-               .param {
-                   padding-left: 10px;
-               }
+        .param {
+            padding-left: 10px;
+        }
 
-               .container-fluid {
-                   background-color: #2a2a2a;
-               }
+        .container-fluid {
+            background-color: #2a2a2a;
+        }
+        #reset {
+            margin: 10px auto;
+            display: block;
+            padding: 5px;
+        }
 
-               table {
-                   display: block;
-                   max-height: 600px;
-                   overflow-y: auto;
-               }
+        .vertical-menu {
+            background: #004050;
+            color: yellow;
+        }
+        .vertical-menu h5{
+                background: linear-gradient(#003040, #002535);
+                padding:5px;
+        }
+       .vertical-menu select{
+           color:red;
+                background: linear-gradient(#003040, #002535);
+                padding:5px;
+        }
 
-                   table td {
-                       padding: 5px;
-                   }
+        #vertical-menu {
+            background: #004050;
+            color: yellow;
+            max-height: 600px;
+            overflow: auto;
+        }
+         #vertical-menu select{
+            color: red;
+        }
+         #vertical-menu input[type=checkbox]{
+             float:right;
+         }
+            /*heading styles*/
+            #vertical-menu ul {
+                padding-left: 0;
+            }
 
-                       table td select {
-                           color: red;
-                       }
-                #reset{
-                    margin:10px auto;
-                    display:block;
-                    padding:5px;
+            #vertical-menu h3 {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                font-size: 12px;
+                line-height: 34px;
+                padding: 0 10px;
+                cursor: pointer;
+                /*fallback for browsers not supporting gradients*/
+                background: #003040;
+                background: linear-gradient(#003040, #002535);
+            }
+                /*heading hover effect*/
+                #vertical-menu h3:hover {
+                    text-shadow: 0 0 1px rgba(255, 255, 255, 0.7);
                 }
+                /*iconfont styles*/
+                #vertical-menu h3 span {
+                    font-size: 12px;
+                    margin-right: 10px;
+                }
+            /*list items*/
+            #vertical-menu li {
+                list-style-type: none;
+            }
 
+            #vertical-menu ul ul li {
+                list-style-type: none;
+                padding: 10px;
+            }
+                /*links*/
+                #vertical-menu ul ul li a {
+                    color: white;
+                    text-decoration: none;
+                    font-size: 11px;
+                    line-height: 27px;
+                    display: block;
+                    padding: 0 15px;
+                    /*transition for smooth hover animation*/
+                    transition: all 0.15s;
+                }
+                    /*hover effect on links*/
+                    #vertical-menu ul ul li a:hover {
+                        background: #003545;
+                        /*border-left: 5px solid lightgreen;*/
+                    }
+            /*Lets hide the non active LIs by default*/
+            #vertical-menu ul ul {
+                display: none;
+            }
+
+            #vertical-menu li.active ul {
+                display: block;
+            }
+
+        /* Let's get this party started */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+            background: rgba(255,0,0,0.8);
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+        }
+
+            ::-webkit-scrollbar-thumb:window-inactive {
+                background: rgba(255,0,0,0.4);
+            }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3" id="leftsidebar">
-                <h3 style="color:chartreuse">Filter</h3>
-                <div id="table"></div>
-                <div><button type="reset" id="reset" onclick="resetFilter()">Reset Filter</button></div>
+            <div class="col-md-3">
+                <h3>Filter</h3>
+                <div id="leftsidebar"></div>
+                <div><button class="btn btn-sm btn-default" type="reset" id="reset" onclick="resetFilter()">Reset Filter</button></div>
             </div>
-            <div class="col-md-7">
-                <h3 style="text-align:center; color:aqua">Star plot visualization</h3>
+            <div class="col-md-6">
+                <h3>Star Plot Visualization for Multivariate Data</h3>
                 <svg width="700" height="700" font-family="sans-serif" font-size="10">
                     <!--<circle cx="100" cy="100" r="10" />-->
                     <!--<path id="square" d="M100 100 H 150 V 180 H 100 Z" fill="transparent" stroke="black" stroke-width="5" />
                     <path id="square1" d="M80 80 H 190 V 220 H 80 Z" fill="transparent" stroke="black" stroke-width="5" />-->
                 </svg>
             </div>
+            <div class="col-md-1">
+                <h4>Legend</h4>
+                <div id="legend">
+
+                </div>
+            </div>
             <div class="col-md-2">
                 <h3>Plot Parameters</h3>
-                <h5 style="background:grey; padding:2px">select a file</h5>
-                <div class="param">
-                    <select class="param" id="selectfile">
-                        <option value="novalue">select a file</option>
-                        <option value="cars.csv">cars</option>
-                        <option value="carsdata_16.csv">carsdata_16</option>
-                        <option value="carsdata_36.csv">carsdata_36</option>
-                        <option value="census_data.csv">census_data</option>
-                        <option value="MissingChildren.csv">MissingChildren</option>
-                    </select>
-                </div>
+                <div class="vertical-menu">
+                    <h5>select a file</h5>
+                    <div class="param">
+                        <select class="param" id="selectfile">
+                            <option value="novalue">select a file</option>
+                            <option value="cars.csv">cars</option>
+                            <option value="carsdata_16.csv">carsdata_16</option>
+                            <option value="carsdata_36.csv">carsdata_36</option>
+                            <option value="census_data.csv">census_data</option>
+                            <option value="MissingChildren.csv">MissingChildren</option>
+                        </select>
+                    </div>
 
-                <label>Dimensions:</label>
-                <h5 style="background:grey; padding:2px">Regular Plot</h5>
-                <label for="cbox" class="param">Regular plot</label><input type="checkbox" id="resetcbox" style="float:right"> <br />
-                <h5 style="background:grey; padding:2px">Shifted origin plot</h5>
-                <label for="cbox" class="param">Shifted origin</label><input type="checkbox" id="cbox" style="float:right"> <br />
-                <h5 style="background:grey; padding:2px">Multilevel</h5>
-                <label class="param">Select plot level:</label><input type="text" id="levels" value="1" style="width:20px; float:right"><br />
-                <input type="checkbox" id="cbox1"> <label for="cbox1">Enable Grid</label><br />
-                <input type="checkbox" id="cbox2"> <label for="cbox1">Highlight Background data</label><br />
-                <h5 style="background:grey; padding:2px">Regular Plot</h5><div class="param"><input type="text" id="radius" value="300" class="param" style="width:100px" /></div><br />
-                <button type="submit" onclick="setValues()">Submit</button>
+                    <label>Dimensions:</label>
+                    <h5>Regular Plot</h5>
+                    <label for="cbox" class="param">Regular plot</label><input type="checkbox" id="resetcbox" style="float:right"> <br />
+                    <h5>Shifted origin plot</h5>
+                    <label for="cbox" class="param">Shifted origin</label><input type="checkbox" id="cbox" style="float:right"> <br />
+                    <h5>Multilevel</h5>
+                    <label class="param">Select plot level:</label><input type="text" id="levels" value="1" style="width:20px; float:right"><br />
+                    <input type="checkbox" id="cbox1"> <label for="cbox1">Enable Grid</label><br />
+                    <input type="checkbox" id="cbox2"> <label for="cbox1">Highlight Background data</label><br />
+                    <h5>Regular Plot</h5><div class="param"><input type="text" id="radius" value="300" class="param" style="width:100px" /></div><br />
+                    <!-- Rounded switch -->
+                    <div class="btn-group btn-toggle">
+                        <button class="btn btn-sm btn-default" name="stroke">Stroke</button>
+                        <button class="btn btn-sm btn-primary active" name="fill">Fill</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-default" type="submit" onclick="setValues()">Submit</button>
+                    </div>
+                    
+                </div>
             </div>
         </div>
     </div>
