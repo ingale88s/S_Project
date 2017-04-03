@@ -419,10 +419,7 @@ function createAxis(svg, dimensions) {
             newpath.setAttributeNS(null, "id", "axisid_" + j);
             newpath.setAttributeNS(null, "class", "axis");
             newpath.setAttributeNS(null, "d", "M" + (x) + " " + (y) + "L" + cos_theta + " " + sin_theta);
-            newpath.setAttributeNS(null, "stroke", "white");
-            newpath.setAttributeNS(null, "stroke-width", 1);
-            newpath.setAttributeNS(null, "opacity", 1);
-            newpath.setAttributeNS(null, "fill", "none");
+
             $(Axisgroup).append(newpath);
             label = document.createElementNS("http://www.w3.org/2000/svg", "text");
             label.setAttribute("class", "label")
