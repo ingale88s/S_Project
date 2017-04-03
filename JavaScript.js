@@ -27,27 +27,30 @@ $(document).ready(function () {
                     $('.plus', this).html('-');
                 }
                 var index = $(this).attr('id').split('_');
-                farray.push(Number(index[1]));
-                farray.sort((a, b) =>a - b);
+                if (farray.indexOf(Number(index[1])) < 0) {
+                    farray.push(Number(index[1]));
+                    farray.sort((a, b) =>a - b);
+                    Array.prototype.diff = function (a) {
+                        return this.filter(function (i) { return a.indexOf(i) < 0; });
+                    };
 
-                Array.prototype.diff = function (a) {
-                    return this.filter(function (i) { return a.indexOf(i) < 0; });
-                };
+                    var farray_inverse = farray_bck.diff(farray);
 
-                var farray_inverse = farray_bck.diff(farray);
-                
-                rarray = data.map(function (arr) {
-                    return arr.slice();
-                });
-
-                farray_inverse.forEach(function (e) {
-                    rarray = rarray.map(function (item) {
-                        // the 0,2 tells the splice function to remove (skip) the last item in this array
-                        return item.filter(function (el, idx) { return idx !== e});
-
+                    rarray = data.map(function (arr) {
+                        return arr.slice();
                     });
-                    
-                })
+
+                    farray_inverse.forEach(function (e) {
+                        rarray = rarray.map(function (item) {
+                            // the 0,2 tells the splice function to remove (skip) the last item in this array
+                            return item.filter(function (el, idx) { return idx !== e });
+
+                        });
+
+                    })
+                }
+
+                $(this).css("background", "linear-gradient(#003040, #002535)");
                 $(Axisgroup).remove();
                 $(circlegroup).remove();
                 $(background).remove();
@@ -64,7 +67,7 @@ $(document).ready(function () {
                     
                 });
                 farray.splice(farray.indexOf(i), 1);
-
+                $(this).css("background", "lightslategrey");
                 $(Axisgroup).remove();
                 $(circlegroup).remove();
                 $(background).remove();
@@ -187,7 +190,24 @@ $(document).ready(function () {
         $(this).find('.btn').toggleClass('btn-default');
     });
 
+    $(".filters").change(function () {
+        var filter_value = $(this).find('option:selected').text();
+        var index = $(this).attr('id').split('_');
+        i = Number(index[1]);
+        console.log(farray)
+        //console.log(farray.indexOf(i));
+        console.log(rarray);
+        //console.log(filter_value);
+        var subset_data = arraySubset(farray.indexOf(i), rarray, filter_value);
+        console.log(subset_data);
+        subset_data.splice(0, 0, rarray[0])
+        var subset_datadimensions = subset_data[0].length - 1;
+        $(Axisgroup).hide();
+        $(circlegroup).hide();
+        $(background).hide();
 
+        createDatapath1(svg, subset_data);
+    });
 })
 
 $.ajax({
@@ -196,7 +216,6 @@ $.ajax({
     async: false,
     success: function (csvd) {
         data = $.csv.toArrays(csvd);
-
         init(data);
 
     }
@@ -316,14 +335,12 @@ function arraySubset(index, data, filter_value) {
     var result = $.grep(data, function (v, i) {
         return v[index] === filter_value;
     });
-    console.log(result);
     return (result);
     
 }
 
 function init(data) {
     var color = ["red", "black", "orange", "yellow"]
-
 
     //setting up filters
     transpose_data = traspose(data);
@@ -333,20 +350,6 @@ function init(data) {
     createDatapath(svg, data);
     rarray = data.map(function (arr) {
         return arr.slice();
-    });
-
-    $(".filters").change(function () {
-         var filter_value = $(this).find('option:selected').text();
-        var index = $(this).attr('id').split('_'); //id is in this form id_1, this will take index number
-        var subset_data = arraySubset(index[1], data, filter_value);
-
-        subset_data.splice(0, 0, data[0])
-        var subset_datadimensions = subset_data[0].length - 1;
-        $(Axisgroup).hide();
-        $(circlegroup).hide();
-        $(background).hide();
-
-        createDatapath1(svg , subset_data);
     });
 }
 
@@ -367,8 +370,13 @@ function normalizeData(data, dimensions) {
 }
 
 function circle(svg, level) {
+    var circle1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    if (($('#cbox:checked').length) > 0 && (level == 1)) {
+        $(circle1).attr({ "cx": x_center, "cy": y_center, "r": radius * 0.2, "stroke": "#666563", "stroke-width": 1, "fill": "none" })
+        $(circlegroup).append(circle1);
+    }
     var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    $(circle).attr({ "cx": x_center, "cy": y_center, "r": radius * level, id : "circle_"+ level,"stroke": "red", "stroke-width": 1, "fill": "none" })
+    $(circle).attr({ "cx": x_center, "cy": y_center, "r": radius * level, id: "circle_" + level, "stroke": "#666563", "stroke-width": 1, "fill": "none" })
     $(circlegroup).append(circle);
 }
 
@@ -417,6 +425,7 @@ function createAxis(svg, dimensions) {
             newpath.setAttributeNS(null, "fill", "none");
             $(Axisgroup).append(newpath);
             label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            label.setAttribute("class", "label")
             if (sin_theta < y) {
                 label.setAttributeNS(null, "x", cos_theta + 2);
                 label.setAttributeNS(null, "y", sin_theta - 5);
@@ -426,7 +435,6 @@ function createAxis(svg, dimensions) {
                 label.setAttributeNS(null, "y", sin_theta +5);
             }
             
-            label.setAttribute('fill', 'yellow');
             label.textContent = axisLabelCounter;
             $(Axisgroup).append(label);
 
@@ -533,11 +541,12 @@ function createDatapath1(svg, subset_data) {
 
     var normalize_data = subset_data.map(function (arr) {
         return arr.slice();
-    });
+    });  //copying data to normalize_data array so that subset_data array remains untouched
+
     for (i = 1; i <= dimensions; i++) {
         var max = 0, min = 1, sum = 0;
-        for (j = 1; j < data.length; j++) {
-            max = Math.max(max, data[j][i]);
+        for (j = 1; j < rarray.length; j++) {
+            max = Math.max(max, rarray[j][i]);
         }
         for (j = 1; j < subset_data.length; j++) {
             normalize_data[j][i] = (subset_data[j][i] / max).toFixed(2);

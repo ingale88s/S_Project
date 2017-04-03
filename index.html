@@ -16,12 +16,20 @@
 
     <style>
         body {
-            color: #ffbb33;
+            color:burlywood;
         }
         #square:hover {
             fill: #0094ff;
         }
+        .label{
+            fill:darkorange;
+            font-size:10px;
+        }
+        input[type="text"], textarea {
 
+  background-color : black; 
+
+}
         #square1:focus {
             fill: #4cff00;
         }
@@ -39,36 +47,55 @@
         }
 
         .container-fluid {
-            background-color: #2a2a2a;
+            background-color: black;
         }
         #reset {
             margin: 10px auto;
             display: block;
             padding: 5px;
         }
+        .headermargin{
+                background-color:#004050;
+                display:block;
+                margin:0 !important;
+                padding:5px;
+                color:seashell;
+                text-align:center;
+                font-size:16px;
+
+        }
 
         .vertical-menu {
             background: #004050;
-            color: yellow;
+            color: seashell;
         }
         .vertical-menu h5{
                 background: linear-gradient(#003040, #002535);
                 padding:5px;
         }
        .vertical-menu select{
-           color:red;
+           color:seashell;
                 background: linear-gradient(#003040, #002535);
                 padding:5px;
         }
+        .vertical-menu select option{
+           color:black;
+
+        }
+
 
         #vertical-menu {
             background: #004050;
-            color: yellow;
+            color: seashell;
             max-height: 600px;
             overflow: auto;
         }
          #vertical-menu select{
-            color: red;
+            color: black;
+        }
+                 #vertical-menu select option{
+           color:black;
+
         }
          #vertical-menu input[type=checkbox]{
              float:right;
@@ -95,7 +122,7 @@
                 }
                 /*iconfont styles*/
                 #vertical-menu h3 span {
-                    font-size: 12px;
+                    font-size: 14px;
                     margin-right: 10px;
                 }
             /*list items*/
@@ -148,25 +175,29 @@
         ::-webkit-scrollbar-thumb {
             -webkit-border-radius: 10px;
             border-radius: 10px;
-            background: rgba(255,0,0,0.8);
+            background: lightgrey;
             -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
         }
 
             ::-webkit-scrollbar-thumb:window-inactive {
-                background: rgba(255,0,0,0.4);
+                background: rgba(170, 141, 83,0.4);
             }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
+            <div class="col-md-12">
+                <h3 style="text-align:center">Star Plot Visualization for Multivariate Data</h3>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-3">
-                <h3>Filter</h3>
+                <h5 class="headermargin">Axis Filter Parameters <span style="padding-left:120px">Visible</span></h5>
                 <div id="leftsidebar"></div>
                 <div><button class="btn btn-sm btn-default" type="reset" id="reset" onclick="resetFilter()">Reset Filter</button></div>
             </div>
             <div class="col-md-6">
-                <h3>Star Plot Visualization for Multivariate Data</h3>
                 <svg width="700" height="700" font-family="sans-serif" font-size="10">
                     <!--<circle cx="100" cy="100" r="10" />-->
                     <!--<path id="square" d="M100 100 H 150 V 180 H 100 Z" fill="transparent" stroke="black" stroke-width="5" />
@@ -174,13 +205,13 @@
                 </svg>
             </div>
             <div class="col-md-1">
-                <h4>Legend</h4>
+                <h5 class="headermargin">Legend</h5>
                 <div id="legend">
 
                 </div>
             </div>
             <div class="col-md-2">
-                <h3>Plot Parameters</h3>
+                <h5 class="headermargin">Plot Parameters</h5>
                 <div class="vertical-menu">
                     <h5>select a file</h5>
                     <div class="param">
