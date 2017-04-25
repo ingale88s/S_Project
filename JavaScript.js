@@ -1,31 +1,49 @@
-﻿var x_center = 350;
-var y_center = 350;
+﻿var filename = "cars_25_U.csv"
+filename = getUrlParameter("filename");
+
+var x_center = 350;
+var y_center = 320;
 var radius = 300;
+var innerRadius = 20;
 var totalplotlevels = 1;
 var origin = 0;
 var circlegroup;
 var highlightcounter = 0; 
-var filename = "cars_25_U.csv"
-//var filename = "CrimeData.csv"
+
 var svg = $('svg');
 var rarray = new Array();
 var farray = new Array();
 var farray_bck = new Array();
 //Events 
 
+
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? 'cars_25_U.csv' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
+
 $(document).ready(function () {
+
+    $(".legendLabels").hide();
+
     $("#vertical-menu h3").click(function () {
         //slide up all the link lists
             $("#vertical-menu ul ul").slideUp();
             $('.plus', this).html('+');
         //slide down the link list below the h3 clicked - only if its closed
             if (($(this).find("input:checked").length) > 0) {
+
+                //logic to slide down once variable is clicked
                 if (!$(this).next().is(":visible")) {
                     $(this).next().slideDown();
                     //$(this).remove("span").append('<span class="minus">-</span>');
                     $('.plus').html('+');
                     $('.plus', this).html('-');
                 }
+
+                //logic to add variable back if it's removed
                 var index = $(this).attr('id').split('_');
                 if (farray.indexOf(Number(index[1])) < 0) {
                     farray.push(Number(index[1]));
@@ -44,18 +62,18 @@ $(document).ready(function () {
                         rarray = rarray.map(function (item) {
                             // the 0,2 tells the splice function to remove (skip) the last item in this array
                             return item.filter(function (el, idx) { return idx !== e });
-
                         });
-
                     })
                 }
-
+                console.log(rarray);
                 $(this).css("background", "linear-gradient(#003040, #002535)");
+
                 $(Axisgroup).remove();
                 $(circlegroup).remove();
                 $(background).remove();
-                radius = 300;
-                createDatapath(svg, rarray);
+
+                //radius = 300;
+                CreateDatapath(svg, rarray);
             }
             else {
                 var index = $(this).attr('id').split('_');
@@ -71,24 +89,16 @@ $(document).ready(function () {
                 $(Axisgroup).remove();
                 $(circlegroup).remove();
                 $(background).remove();
-                radius = 300;
-                createDatapath(svg, rarray);
+                if(window.foreground)
+                    $(foreground).remove();
+                //radius = 300;
+                CreateDatapath(svg, rarray);
             }
     })
 
     $("#selectfile").change(function () {
         filename = $(this).find('option:selected').val();
-        $.ajax({
-            //url: "MissingChildren.csv",
-            url: filename,
-            async: false,
-            success: function (csvd) {
-                data = $.csv.toArrays(csvd);
-                $("#svg").remove();
-
-                init(data);
-            }
-        });
+        window.open(window.location.origin + "?filename=" + filename)
     });
 
     $("#cbox1").change(function () {
@@ -106,11 +116,17 @@ $(document).ready(function () {
         }
     });
 
-    $("svg").on("mouseover", ".data", function (event) {
+    $("#resetcbox").change(function () {
+        if (this.checked) {
+            location.reload();
+        }
+    })
+
+    $("svg")
+    .on("mouseover", ".data", function (event) {
         document.body.style.cursor = "pointer";
         $(this)
             .css("stroke-width", "5")
-            .css("stroke", "red")
         label1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label1.setAttributeNS(null, "x", event.pageX - 380);
         label1.setAttributeNS(null, "y", event.pageY - 27);
@@ -121,7 +137,7 @@ $(document).ready(function () {
         $(svg).append(label1);
     })
 
-    $("svg").on("mouseover", ".axis", function (event) {
+    .on("mouseover", ".axis", function (event) {
         document.body.style.cursor = "pointer";
         axislabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
         axislabel.setAttributeNS(null, "x", event.pageX - 380);
@@ -141,7 +157,6 @@ $(document).ready(function () {
         document.body.style.cursor = "auto";
         $(this)
         .css("stroke-width", "1")
-        .css("stroke", "white")
         label1.remove();
     })
 
@@ -161,14 +176,12 @@ $(document).ready(function () {
             }
             else {
                 $(elms[i]).css("fill", color1);
-                opac = 1 / (i + 1);
+                opac = 1 / (i + 1.5);
                 elms[i].style.opacity = opac;
 
             }
         }
         $(".data").css("stroke", "none");
-        //$(".data").not(elms)
-        //    .css("opacity", "0.2");
         $(".axis").css("opacity", "0.4");
         highlightcounter = highlightcounter + 1;
     })
@@ -176,7 +189,7 @@ $(document).ready(function () {
     $("#cbox2").change(function () {
         if (this.checked) {
             $(".data").css("stroke", "white");
-            $(".data").css("opacity", "0.2");
+            $(".data").css("opacity", "0.5");
 
         }
         else {
@@ -194,30 +207,103 @@ $(document).ready(function () {
         var filter_value = $(this).find('option:selected').text();
         var index = $(this).attr('id').split('_');
         i = Number(index[1]);
-        console.log(farray)
+        //console.log(farray)
         //console.log(farray.indexOf(i));
-        console.log(rarray);
+        //console.log(rarray);
         //console.log(filter_value);
-        var subset_data = arraySubset(farray.indexOf(i), rarray, filter_value);
-        console.log(subset_data);
+        var subset_data = ArraySubset(farray.indexOf(i), rarray, filter_value);
+        //console.log(subset_data);
         subset_data.splice(0, 0, rarray[0])
         var subset_datadimensions = subset_data[0].length - 1;
         $(Axisgroup).hide();
         $(circlegroup).hide();
         $(background).hide();
 
-        createDatapath1(svg, subset_data);
+        CreateDatapath1(svg, subset_data);
     });
+
+    //Control outer radius
+    $("#qty").change(function () {
+        radius = $("#qty").val();
+        ResetPlot();
+    })
+
+    $("#btn-plus").click(function () {
+        radius = radius + 10;
+        $("#qty").val(radius);
+        ResetPlot();
+    })
+
+    $("#btn-minus").click(function () {
+        radius = radius - 10;
+        $("#qty").val(radius);
+        ResetPlot();
+    })
+
+    //Control inner radius
+    $("#qty1").change(function () {
+        if ($('#cbox:checked').length > 0) {
+            innerRadius = $("#qty1").val();
+            ResetPlot();
+        }
+    })
+
+    $("#btn-plus1").click(function () {
+        if ($('#cbox:checked').length > 0) {
+            innerRadius = innerRadius + 5;
+            $("#qty1").val(innerRadius);
+            ResetPlot();
+        }
+
+    })
+
+    $("#btn-minus1").click(function () {
+        if ($('#cbox:checked').length > 0) {
+            innerRadius = innerRadius - 5;
+            $("#qty1").val(innerRadius);
+            ResetPlot();
+        }
+    })
+
+
+    $(svg).bind('mousewheel', function (e) {
+        if (e.originalEvent.wheelDelta / 120 > 0) {
+            radius = radius + 10;
+            $("#qty").val(radius);
+            ResetPlot();
+        }
+        else {
+            radius = radius - 10;
+            $("#qty").val(radius);
+            ResetPlot();
+        }
+    });
+
+    $('.rangefilter').click(function () {
+        var index = $(this).attr('id').split('_');
+        var i = Number(index[1]);
+        var fromTextboxValue = $('#fromTextbox_' + index[1]).val();
+        var toTextboxValue = $('#toTextbox_' + index[1]).val();
+        //console.log(farray)
+        //console.log(farray.indexOf(i));
+        //console.log(rarray);
+        var subset_data = ArraySubset1(farray.indexOf(i), rarray, fromTextboxValue,toTextboxValue)
+        //console.log(subset_data);
+        subset_data.splice(0, 0, rarray[0])
+        var subset_datadimensions = subset_data[0].length - 1;
+        $(Axisgroup).hide();
+        $(circlegroup).hide();
+        $(background).hide();
+        CreateDatapath1(svg, subset_data);
+    })
 })
 
 $.ajax({
-    //url: "MissingChildren.csv",
-    url:filename,
+    url: window.location.origin + "/Dataset/" + filename,
     async: false,
     success: function (csvd) {
         data = $.csv.toArrays(csvd);
         init(data);
-
     }
 });
 
@@ -227,7 +313,7 @@ function highlightColor(highlightcounter) {
     return (color);
 }
 
-function resetFilter() {
+function ResetFilter() {
     location.reload();
 }
 
@@ -243,23 +329,19 @@ function get_random_color() {
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 3; i++) {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
 }
 
-function setValues() {
-    radius = document.getElementById("radius").value;
+function SetValues() {
     totalplotlevels = document.getElementById("levels").value;
     origin = ($('#cbox:checked').length > 0) ? 0.1 : 0;
-    $(Axisgroup).remove();
-    $(circlegroup).remove();
-    $(background).remove();
-    createDatapath(svg,data);
+    ResetPlot();
 }
 
-function traspose(data) {
+function Transpose(data) {
     var transposeArray = data[0].map(function (col, i) {
         return data.map(function (row) {
             return row[i]
@@ -269,19 +351,30 @@ function traspose(data) {
     return transposeArray;
 }
 
-function setFilter(transpose_data) {
+function SetFilter(transpose_data) {
     var leftsidebar = document.getElementById("leftsidebar");
     var filtDiv = document.createElement('div');
     filtDiv.setAttribute("id", "vertical-menu");
     leftsidebar.appendChild(filtDiv);
-    var ul1 = document.createElement("ul");
-    filtDiv.appendChild(ul1);
+
+    //This will create a list of all the variables and append it to filter div
+
+    var ul1 = document.createElement("ul"); 
+    filtDiv.appendChild(ul1); 
     
+    // Go through the variables one by one for all the variables
+
     for (i = 0; i < transpose_data.length; i++) {
+
+        //Only take unique values for data to display in dropdown box
         uniqueFilterValues = Array.from(new Set(transpose_data[i])); //ES6 set dropdown values
         farray.push(i);
         farray_bck.push(i);
+
+        // This creates list elements 
         var li1 = document.createElement("li");
+
+        // This is header of the variable 
         var header = document.createElement('h3');
         header.setAttribute("id", "Filteraxis_" + i)
         var dspan = document.createElement('span');
@@ -322,16 +415,62 @@ function setFilter(transpose_data) {
             s.append(t);
         }
 
+        var label1 = document.createElement('span');
+        label1.innerHTML = "Select Data point: ";
+
+        var listmember1 = document.createElement('li');
+        listmember1.appendChild(label1);
+        listmember1.appendChild(s);
+        list.appendChild(listmember1);
+
+        var label2 = document.createElement('span');
+        label2.innerHTML = "Select Range: ";
+
+        var fromTextbox = document.createElement('input');
+        fromTextbox.id = 'fromTextbox_' + i;
+        fromTextbox.type = "text";
+        fromTextbox.style['width'] = '50px';
+
+        var toTextbox = document.createElement('input');
+        toTextbox.id = 'toTextbox_' + i;
+        toTextbox.type = "text";
+        toTextbox.style['width'] = '50px';
+
         var listmember2 = document.createElement('li');
-        listmember2.appendChild(s);
+        listmember2.appendChild(label2);
+        listmember2.appendChild(fromTextbox);
+
+        label2 = document.createElement('span');
+        label2.style['padding'] = '10px'
+        label2.innerHTML = "To";
+
+        listmember2.appendChild(label2);
+        listmember2.appendChild(toTextbox);
+
+        var filterbutton = document.createElement('button');
+        filterbutton.innerHTML = 'Filter';
+        filterbutton.style['width'] = '80px';
+        filterbutton.style['color'] = 'black';
+        filterbutton.style['margin-left'] = '15px';
+        filterbutton.className = "rangefilter";
+        filterbutton.id = "rangefilter_" + i;
+        listmember2.appendChild(filterbutton);
+
         list.appendChild(listmember2);
+
         li1.appendChild(list);
         ul1.appendChild(li1);
     }
 
 }
+function ArraySubset1(index, data, fromvalue, tovalue ) {
+    var result = $.grep(data, function (v, i) {
+        return (v[index] >= fromvalue && v[index] <= tovalue);
+    });
+    return (result);
+}
 
-function arraySubset(index, data, filter_value) {
+function ArraySubset(index, data, filter_value) {
     var result = $.grep(data, function (v, i) {
         return v[index] === filter_value;
     });
@@ -343,17 +482,28 @@ function init(data) {
     var color = ["red", "black", "orange", "yellow"]
 
     //setting up filters
-    transpose_data = traspose(data);
-    setFilter(transpose_data);
+    transpose_data = Transpose(data);
+    SetFilter(transpose_data);
 
     //create starplot
-    createDatapath(svg, data);
+    CreateDatapath(svg, data);
+
+    //copy of main data array in rarray
     rarray = data.map(function (arr) {
         return arr.slice();
     });
 }
 
-function normalizeData(data, dimensions) {
+function ResetPlot() {
+    $(Axisgroup).remove();
+    $(circlegroup).remove();
+    $(background).remove();
+    if (window.foreground)
+        $(foreground).remove();
+    CreateDatapath(svg, data);
+}
+
+function NormalizeData(data, dimensions) {
     var normalize_data = data.map(function (arr) {
         return arr.slice();
     });
@@ -369,14 +519,14 @@ function normalizeData(data, dimensions) {
     return normalize_data;
 }
 
-function circle(svg, level) {
+function circle(svg, level, tempradius) {
     var circle1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     if (($('#cbox:checked').length) > 0 && (level == 1)) {
-        $(circle1).attr({ "cx": x_center, "cy": y_center, "r": radius * 0.2, "stroke": "#666563", "stroke-width": 1, "fill": "none" })
+        $(circle1).attr({ "cx": x_center, "cy": y_center, "r": tempradius * (innerRadius/100), "stroke": "#666563", "stroke-width": 1, "fill": "none" })
         $(circlegroup).append(circle1);
     }
     var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    $(circle).attr({ "cx": x_center, "cy": y_center, "r": radius * level, id: "circle_" + level, "stroke": "#666563", "stroke-width": 1, "fill": "none" })
+    $(circle).attr({ "cx": x_center, "cy": y_center, "r": tempradius * level, id: "circle_" + level, "stroke": "#666563", "stroke-width": 1, "fill": "none" })
     $(circlegroup).append(circle);
 }
 
@@ -386,7 +536,7 @@ function point(svg, r, x,y) {
     svg.append(point);
 }
 
-function createAxis(svg, dimensions) {
+function CreateAxis(svg, dimensions, tempradius) {
 
     Axisgroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(Axisgroup);
@@ -405,16 +555,16 @@ function createAxis(svg, dimensions) {
             dimensioncount = dimensions - totaldimensioncounted;
         }
 
-        origin = ((i <= 1 && ($('#cbox:checked').length > 0)) ? 0.2: 0);  //Shifting origin
+        origin = ((i <= 1 && ($('#cbox:checked').length > 0)) ? (innerRadius/100) : 0);  //Shifting origin
 
         for (j = 1; j <= (dimensioncount) ; j++) {
 
             var theta = (j / dimensioncount) * Math.PI * 2;
-            x = x_center + Math.cos(theta) * radius * (i - 1) + Math.cos(theta) * radius * origin;
-            y = y_center + Math.sin(theta) * radius * (i - 1) + Math.sin(theta) * radius * origin;
+            x = x_center + Math.cos(theta) * tempradius * (i - 1) + Math.cos(theta) * tempradius * origin;
+            y = y_center + Math.sin(theta) * tempradius * (i - 1) + Math.sin(theta) * tempradius * origin;
 
-            var cos_theta = x_center + Math.cos(theta) * radius * i;
-            var sin_theta = y_center + Math.sin(theta) * radius * i;
+            var cos_theta = x_center + Math.cos(theta) * tempradius * i;
+            var sin_theta = y_center + Math.sin(theta) * tempradius * i;
             newpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
             newpath.setAttributeNS(null, "id", "axisid_" + j);
             newpath.setAttributeNS(null, "class", "axis");
@@ -432,35 +582,39 @@ function createAxis(svg, dimensions) {
                 label.setAttributeNS(null, "y", sin_theta +5);
             }
             
-            label.textContent = axisLabelCounter;
+            label.textContent = farray[axisLabelCounter];
             $(Axisgroup).append(label);
-
             axisLabelCounter++;
-            
         }
-        circle(svg, i);
+        circle(svg, i, tempradius);
         levelofplotting = 2 * i + 1;
     }
 }
 
-function createDatapath(svg, data) {
+function CreateDatapath(svg, data) {
     //calculating radius
+    var tempradius;
     if (totalplotlevels > 1) {
-        radius = (radius / totalplotlevels);
+        tempradius = (radius / totalplotlevels);
         
     }
+    else {
+        tempradius = radius;
+    }
+    
     //calculating dimensions
     dimensions = data[0].length - 1;
 
     //creating circle
     circlegroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(circlegroup);
-    createAxis(svg, dimensions);
 
-    //radius = radius;
-    normalize_data = normalizeData(data, dimensions);//normalize data between 1 and 0
+    CreateAxis(svg, dimensions, tempradius);
+
+    normalize_data = NormalizeData(data, dimensions);//normalize data between 1 and 0
     background = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(background);
+
     background.setAttributeNS(null, "class", "background");
         var levelofplotting = 1;
         dp = 0;   //dimensionposition
@@ -474,25 +628,25 @@ function createDatapath(svg, data) {
         else {
             dimensioncount = dimensions - totaldimensioncounted;
         }
-        origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? 0.3 : 0);  //Shifting origin
-
+        origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? (innerRadius/100 + 0.1) : 0);  //Shifting origin by 10px more than inner radius
         for (i = 1; i < normalize_data.length; i++) {
 
             var newpath, dataline;
             newpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
             newpath.setAttributeNS(null, "name", "dataid_" + i);
             newpath.setAttributeNS(null, "class", "data");
-            newpath.setAttributeNS(null, "opacity", 1);
+            newpath.setAttributeNS(null, "opacity", 0.5);
             newpath.setAttributeNS(null, "fill", "none");
-
+            newpath.setAttributeNS(null, "shape-rendering", "geometricPrecision");
+            
             dataline = "M";
                     
             for (j = 1; j <= (dimensioncount) ; j++) {
                 var theta = (j / dimensioncount) * Math.PI * 2;
                 var cos_theta, sin_theta;
                 
-                x = x_center + Math.cos(theta) * (radius + 5) * (k - 1) + Math.cos(theta) * (radius) * origin;// moving to point where graph can begin
-                y = y_center + Math.sin(theta) * (radius + 5) * (k - 1) + Math.sin(theta) * (radius) * origin;
+                x = x_center + Math.cos(theta) * (tempradius + 5) * (k - 1) + Math.cos(theta) * (tempradius) * origin;// moving to point where graph can begin
+                y = y_center + Math.sin(theta) * (tempradius + 5) * (k - 1) + Math.sin(theta) * (tempradius) * origin;
                 //var count_datapoint;  
                 //count_datapoint = 0;
                 //counting datapoints
@@ -503,14 +657,28 @@ function createDatapath(svg, data) {
                 //}
 
                 if (j < 2) {
-                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius - 20);
-                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius - 20);
+                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
+                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     dataline = dataline + cos_theta + " " + sin_theta;
+
+                    legendLabels = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    legendLabels.setAttribute("class", "data");
+                    legendLabels.setAttributeNS(null, "x", cos_theta);
+                    legendLabels.setAttributeNS(null, "y", sin_theta);
+                    legendLabels.textContent = normalize_data[i][dp + j];
+                    
                 }
                 else {
-                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius - 20);
-                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius - 20);
+                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
+                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     dataline = dataline + "L" + cos_theta + " " + sin_theta;
+
+                    //legendLabels = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    //legendLabels.setAttribute("class", "data");
+                    //legendLabels.setAttributeNS(null, "x", cos_theta);
+                    //legendLabels.setAttributeNS(null, "y", sin_theta);
+                    //legendLabels.textContent = normalize_data[i][dp + j];
+                    
                 }
                 //if (count_datapoint > 1) {
                 //    point(svg, count_datapoint, cos_theta, sin_theta);
@@ -524,16 +692,24 @@ function createDatapath(svg, data) {
                 
         levelofplotting = 2 * k + 1;
     }
-
 }
 
-function createDatapath1(svg, subset_data) {
+function CreateDatapath1(svg, subset_data) {
+
+    var tempradius;
+    if (totalplotlevels > 1) {
+        tempradius = (radius / totalplotlevels);
+
+    }
+    else {
+        tempradius = radius;
+    }
 
     dimensions = subset_data[0].length - 1;
     //creating circle
     circlegroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(circlegroup);
-    createAxis(svg, dimensions);
+    CreateAxis(svg, dimensions, tempradius);
     color = getRandomColor();
 
     var normalize_data = subset_data.map(function (arr) {
@@ -566,8 +742,7 @@ function createDatapath1(svg, subset_data) {
             dimensioncount = dimensions - totaldimensioncounted;
         }
 
-        origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? 0.2 : 0);  //Shifting origin
-
+        origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? (innerRadius/100) : 0);  //Shifting origin
         for (i = 1; i < normalize_data.length; i++) {
 
             var newpath, dataline;
@@ -583,8 +758,8 @@ function createDatapath1(svg, subset_data) {
                 var theta = (j / dimensioncount) * Math.PI * 2;
                 var cos_theta, sin_theta;
                 var count_datapoint;
-                x = x_center + Math.cos(theta) * (radius+5) * (k - 1) + Math.cos(theta) * radius * origin;// moving to point where graph can begin
-                y = y_center + Math.sin(theta) * (radius+5) * (k - 1) + Math.sin(theta) * radius * origin;
+                x = x_center + Math.cos(theta) * (tempradius + 5) * (k - 1) + Math.cos(theta) * tempradius * origin;// moving to point where graph can begin
+                y = y_center + Math.sin(theta) * (tempradius + 5) * (k - 1) + Math.sin(theta) * tempradius * origin;
                 count_datapoint = 0;
                 //counting datapoints
                 //for (l = 1; l < normalize_data.length ; l++) {
@@ -594,13 +769,13 @@ function createDatapath1(svg, subset_data) {
                 //}
 
                 if (j < 2) {
-                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius-20);
-                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius-20);
+                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
+                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     dataline = dataline + cos_theta + " " + sin_theta;
                 }
                 else {
-                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius-20);
-                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (radius-20);
+                    cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
+                    sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     dataline = dataline + "L" + cos_theta + " " + sin_theta;
                 }
                 //if (count_datapoint > 1) {
@@ -619,4 +794,44 @@ function createDatapath1(svg, subset_data) {
     }
 
 }
-    
+
+function CreateLegend() {
+    legendGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svg.append(legendGroup);
+
+    var levelofplotting = 1;
+
+    var totaldimensioncounted = 0;
+    for (i = 1; i <= totalplotlevels; i++) {
+
+        if (i < totalplotlevels) {
+            dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
+            dimensioncount = Math.floor(dimensioncount);
+            totaldimensioncounted = totaldimensioncounted + dimensioncount;
+        }
+        else {
+            dimensioncount = dimensions - totaldimensioncounted;
+        }
+
+        origin = ((i <= 1 && ($('#cbox:checked').length > 0)) ? 0.2 : 0);  //Shifting origin
+
+        for (j = 1; j <= (dimensioncount) ; j++) {
+
+            var theta = (j / dimensioncount) * Math.PI * 2;
+            x = x_center + Math.cos(theta) * tempradius * (i - 1) + Math.cos(theta) * tempradius * origin;
+            y = y_center + Math.sin(theta) * tempradius * (i - 1) + Math.sin(theta) * tempradius * origin;
+
+            var cos_theta = x_center + Math.cos(theta) * tempradius * i;
+            var sin_theta = y_center + Math.sin(theta) * tempradius * i;
+
+            newpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            newpath.setAttributeNS(null, "id", "axisid_" + j);
+            newpath.setAttributeNS(null, "class", "axis");
+            newpath.setAttributeNS(null, "d", "M" + (x) + " " + (y) + "L" + cos_theta + " " + sin_theta);
+            $(Axisgroup).append(newpath);
+
+        }
+        circle(svg, i, tempradius);
+        levelofplotting = 2 * i + 1;
+    }
+}

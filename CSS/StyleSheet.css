@@ -1,0 +1,179 @@
+﻿        body {
+            color: burlywood;
+        }
+
+        #square:hover {
+            fill: #0094ff;
+        }
+
+        .label {
+            fill: darkorange;
+            font-size: 10px;
+        }
+
+        input[type="text"], textarea {
+            background-color: black;
+            color:white;
+        }
+
+        #square1:focus {
+            fill: #4cff00;
+        }
+        .data {
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .param {
+            padding-left: 10px;
+        }
+
+        .container-fluid {
+            background-color: black;
+        }
+
+        .sub_btn {
+            margin: 10px auto;
+            display: block;
+            padding: 5px;
+        }
+
+        .headermargin {
+            background-color: #004050;
+            display: block;
+            margin: 0 !important;
+            padding: 5px;
+            color: seashell;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .vertical-menu {
+            background: #004050;
+            color: seashell;
+            height: 600px;
+        }
+
+            .vertical-menu h5 {
+                background: linear-gradient(#003040, #002535);
+                padding: 5px;
+            }
+
+            .vertical-menu select {
+                color: seashell;
+                background: linear-gradient(#003040, #002535);
+                padding: 5px;
+            }
+
+                .vertical-menu select option {
+                    color: black;
+                }
+
+
+        #vertical-menu {
+            background: #004050;
+            color: seashell;
+            max-height: 600px;
+            overflow: auto;
+        }
+
+            #vertical-menu select {
+                color: black;
+            }
+
+                #vertical-menu select option {
+                    color: black;
+                }
+
+            #vertical-menu input[type=checkbox] {
+                float: right;
+            }
+            /*heading styles*/
+            #vertical-menu ul {
+                padding-left: 0;
+            }
+
+            #vertical-menu h3 {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                font-size: 12px;
+                line-height: 34px;
+                padding: 0 10px;
+                cursor: pointer;
+                /*fallback for browsers not supporting gradients*/
+                background: #003040;
+                background: linear-gradient(#003040, #002535);
+            }
+                /*heading hover effect*/
+                #vertical-menu h3:hover {
+                    text-shadow: 0 0 1px rgba(255, 255, 255, 0.7);
+                }
+                /*iconfont styles*/
+                #vertical-menu h3 span {
+                    font-size: 14px;
+                    margin-right: 10px;
+                }
+            /*list items*/
+            #vertical-menu li {
+                list-style-type: none;
+            }
+
+            #vertical-menu ul ul li {
+                list-style-type: none;
+                padding: 10px;
+            }
+                /*links*/
+                #vertical-menu ul ul li a {
+                    color: white;
+                    text-decoration: none;
+                    font-size: 11px;
+                    line-height: 27px;
+                    display: block;
+                    padding: 0 15px;
+                    /*transition for smooth hover animation*/
+                    transition: all 0.15s;
+                }
+                    /*hover effect on links*/
+                    #vertical-menu ul ul li a:hover {
+                        background: #003545;
+                        /*border-left: 5px solid lightgreen;*/
+                    }
+            /*Lets hide the non active LIs by default*/
+            #vertical-menu ul ul {
+                display: none;
+            }
+
+            #vertical-menu li.active ul {
+                display: block;
+            }
+
+        /* Let's get this party started */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+            background: lightgrey;
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+        }
+
+            ::-webkit-scrollbar-thumb:window-inactive {
+                background: rgba(170, 141, 83,0.4);
+            }
+
+        .axis {
+            stroke: antiquewhite;
+            stroke-width: 1;
+            opacity: 0.6;
+            fill: none;
+        }
