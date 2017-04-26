@@ -299,7 +299,7 @@ $(document).ready(function () {
 })
 
 $.ajax({
-    url: window.location.origin + "/Dataset/" + filename,
+    url: window.location.origin + "S_Project/Dataset/" + filename,
     async: false,
     success: function (csvd) {
         data = $.csv.toArrays(csvd);
