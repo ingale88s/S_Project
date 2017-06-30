@@ -98,7 +98,7 @@ $(document).ready(function () {
 
     $("#selectfile").change(function () {
         filename = $(this).find('option:selected').val();
-        window.open("https://ingale88s.github.io/S_Project"+ "?filename=" + filename)
+        window.open("https://ingale88s.github.io/S_Project?filename=" + filename)
     });
 
     $("#cbox1").change(function () {
