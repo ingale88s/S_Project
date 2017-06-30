@@ -1,4 +1,4 @@
-﻿var filename = "cars_25_U.csv"
+var filename = "cars_25_U.csv"
 filename = getUrlParameter("filename");
 
 var x_center = 350;
