@@ -299,7 +299,7 @@ $(document).ready(function () {
 })
 
 $.ajax({
-    url: "https://github.com/ingale88s/S_Project/tree/master/Dataset"  + filename,
+    url: "https://github.com/ingale88s/S_Project"  + filename,
     async: false,
     success: function (csvd) {
         data = $.csv.toArrays(csvd);
