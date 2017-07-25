@@ -1,8 +1,6 @@
 var filename = "cars_25_U.csv"
 filename = getUrlParameter("filename");
 
-//initial plot parameters x_center,y_center are x and y coordinates. Radius is outer ring radius and innerRadius is inner ring radius
-//
 var x_center = 350;
 var y_center = 320;
 var radius = 300;
@@ -12,17 +10,13 @@ var origin = 0;
 var circlegroup;
 var highlightcounter = 0; 
 
-//svg is a DOM element from HTML first we need to read that element and then attach star plot to this element
 var svg = $('svg');
-
-//Arrays for manipulating the data.
 var rarray = new Array();
 var farray = new Array();
 var farray_bck = new Array();
 //Events 
 
-//This function reads url in a browser and get filename parameter. This way we understand which datafile is used
-//if only one file is used then this function is not required.
+
 function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -30,22 +24,10 @@ function getUrlParameter(name) {
     return results === null ? 'cars_25_U.csv' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 };
 
-//This is a starting point of a program. Ajax script reads file provided by url and save into data array.
-//After reading file is complted init function is called where data array is passed.
-$.ajax({
-    url: "https://ingale88s.github.io/S_Project/"  + filename,
-    async: false,
-    success: function (csvd) {
-        data = $.csv.toArrays(csvd);
-        init(data);
-    }
-});
-//When HTML file is completely loaded into a browser then this function is called. 
 $(document).ready(function () {
 
     $(".legendLabels").hide();
 
-    //This is left hand side vertical menu function.
     $("#vertical-menu h3").click(function () {
         //slide up all the link lists
             $("#vertical-menu ul ul").slideUp();
@@ -114,22 +96,17 @@ $(document).ready(function () {
             }
     })
 
-    //selectfile id is for select file dropdown on right hand side
     $("#selectfile").change(function () {
         filename = $(this).find('option:selected').val();
         window.open("https://ingale88s.github.io/S_Project?filename=" + filename)
     });
 
-    //cbox1 id is for enable grid checkbox on right hand side. After clicking this check box, 10 smallers circles are plotted on top of starplot
-    //
     $("#cbox1").change(function () {
         if (this.checked) {
-            //grid element is created for grid and this grid is appended to the main svg variable.
             grid = document.createElementNS("http://www.w3.org/2000/svg", "g");
             svg.append(grid);
             for (i = 0; i < 10; i++) {
                 var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                //here circle center is fixed and which is already defined, radius r is calculated by dividing radius * i/10 and rest is css parameters.
                 $(circle).attr({ "cx": x_center, "cy": y_center, "r": 300 * i / 10, "stroke": "lightgrey", "stroke-width": 1, "fill": "none", "stroke-opacity": 0.3 })
                 $(grid).append(circle);
             }
@@ -139,26 +116,17 @@ $(document).ready(function () {
         }
     });
 
-    //resetcbox is for Regular star plot checkbox on right hand side. This checkbox just reloads the page so everything is resetted
     $("#resetcbox").change(function () {
         if (this.checked) {
             location.reload();
         }
     })
 
-    //What should happen when we point our mouse on a star plot. Following code answers that. '.data' and '.axis' are classes created for showing
-    //datapoints and radial axis. mouseover event is attached to it so that whenever user points on data following code runs.
     $("svg")
     .on("mouseover", ".data", function (event) {
-
-        //when user takes mouse to a data mouser cursor becomes pointer.
         document.body.style.cursor = "pointer";
-        //this keyword is used for getting whatever data is highlighted. Once mouse is on that data point width of that datapoint will change to 5
-
-        $(this).css("stroke-width", "5")
-        // and a label is attached to it. x and y coordinates then color yellow and then what should be name of the label.
-        // name of a label is coming from name of a datapoint. If you inspect any datapoint using google browser, for every datapoint 
-        //there is a name property. 
+        $(this)
+            .css("stroke-width", "5")
         label1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label1.setAttributeNS(null, "x", event.pageX - 380);
         label1.setAttributeNS(null, "y", event.pageY - 27);
@@ -169,8 +137,6 @@ $(document).ready(function () {
         $(svg).append(label1);
     })
 
-    // same as data, the axis class is used to point axes. Here coloumn headers we need to grab so index is passed as data[0][i].
-    //Data array is a two-dimentional array.
     .on("mouseover", ".axis", function (event) {
         document.body.style.cursor = "pointer";
         axislabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -182,11 +148,11 @@ $(document).ready(function () {
         axislabel.textContent = data[0][i];
         $(svg).append(axislabel);
     })
-    //what should happen when mouse out.
+
     .on("mouseout", ".axis", function () {
         axislabel.remove();
     })
-    //what should happen when mouse out.
+
     .on("mouseout", ".data", function () {
         document.body.style.cursor = "auto";
         $(this)
@@ -194,11 +160,6 @@ $(document).ready(function () {
         label1.remove();
     })
 
-    //mouse click event.When ever user clicks on a datapoint all the data points with same name is highlighted.
-    // In regular star plot, all the datapoints will have unique names.
-    // In 2-level plot, same datapoints are divided into two levels. Still their name remains same. So there will be 2 datapoints with same name
-    // Task is to highlight both the data points with same color but with different opacity. inner datapoint with higher opacity and outer with 
-    //low opacity value.
     .on("click", ".data", function () {
         elmsid = $(this).attr("name");
         //.css("fill", "#daf7a6").css("fill-opacity", "0.4");
@@ -225,10 +186,6 @@ $(document).ready(function () {
         highlightcounter = highlightcounter + 1;
     })
 
-    //cbox2 id is for highlight background data checkbox. This is to highlights background data when already one datapoint is highlighted.
-    //This is useful for comparing purpose. 
-    //data DOM class is already present we just need to change stroke and opacity parameters to display on screen.
-    
     $("#cbox2").change(function () {
         if (this.checked) {
             $(".data").css("stroke", "white");
@@ -240,51 +197,32 @@ $(document).ready(function () {
         }
     })
 
-    //This code toggles brushing options from stroke to fill. Stroke means when user clicks on a datapoint it will highlight
-    //with line and and Fill means area under the datapoint is also highlighted using some color.
     $('.btn-toggle').click(function () {
         $(this).find('.btn').toggleClass('active');
         $(this).find('.btn').toggleClass('btn-primary');
         $(this).find('.btn').toggleClass('btn-default');
     });
 
-    // .filters is a class for dropdown menu on lefthand side. Every dimension of a data has filter which will have all the unique values of the data.
     $(".filters").change(function () {
         var filter_value = $(this).find('option:selected').text();
         var index = $(this).attr('id').split('_');
         i = Number(index[1]);
-        //i variable tells us which filter is selected. For cars dataset make, engine-location, fuel-types are dimensions
-        //if make filter is selected then i will be 0, we then pass i to Arraysubset function to get only datapoints which are filtered.
-        var subset_data = ArraySubset(farray.indexOf(i), rarray, filter_value);
-        subset_data.splice(0, 0, rarray[0])
-        var subset_datadimensions = subset_data[0].length - 1;
-        $(Axisgroup).hide();
-        $(circlegroup).hide();
-        $(background).hide();
-
-        //create datapath function gets array and plots the star plot
-        CreateDatapath1(svg, subset_data);
-    });
-    // Similar to a dimension filter there is a range filter.Range filter is useful for numerical data.When we give range a Arraysubset function
-    // return a subset of data within a range.
-    $('.rangefilter').click(function () {
-        var index = $(this).attr('id').split('_');
-        var i = Number(index[1]);
-        var fromTextboxValue = $('#fromTextbox_' + index[1]).val();
-        var toTextboxValue = $('#toTextbox_' + index[1]).val();
         //console.log(farray)
         //console.log(farray.indexOf(i));
         //console.log(rarray);
-        var subset_data = ArraySubset1(farray.indexOf(i), rarray, fromTextboxValue,toTextboxValue)
+        //console.log(filter_value);
+        var subset_data = ArraySubset(farray.indexOf(i), rarray, filter_value);
         //console.log(subset_data);
         subset_data.splice(0, 0, rarray[0])
         var subset_datadimensions = subset_data[0].length - 1;
         $(Axisgroup).hide();
         $(circlegroup).hide();
         $(background).hide();
+
         CreateDatapath1(svg, subset_data);
-    })
-    //Control outer radius. Botton side of a screen you will see two zoom-in and zoom-out buttons for changing outer radius and inner radius
+    });
+
+    //Control outer radius
     $("#qty").change(function () {
         radius = $("#qty").val();
         ResetPlot();
@@ -327,7 +265,7 @@ $(document).ready(function () {
         }
     })
 
-    //Zoom-in/out can be controlled on mousewheel
+
     $(svg).bind('mousewheel', function (e) {
         if (e.originalEvent.wheelDelta / 120 > 0) {
             radius = radius + 10;
@@ -341,8 +279,33 @@ $(document).ready(function () {
         }
     });
 
-
+    $('.rangefilter').click(function () {
+        var index = $(this).attr('id').split('_');
+        var i = Number(index[1]);
+        var fromTextboxValue = $('#fromTextbox_' + index[1]).val();
+        var toTextboxValue = $('#toTextbox_' + index[1]).val();
+        //console.log(farray)
+        //console.log(farray.indexOf(i));
+        //console.log(rarray);
+        var subset_data = ArraySubset1(farray.indexOf(i), rarray, fromTextboxValue,toTextboxValue)
+        //console.log(subset_data);
+        subset_data.splice(0, 0, rarray[0])
+        var subset_datadimensions = subset_data[0].length - 1;
+        $(Axisgroup).hide();
+        $(circlegroup).hide();
+        $(background).hide();
+        CreateDatapath1(svg, subset_data);
+    })
 })
+
+$.ajax({
+    url: "https://ingale88s.github.io/S_Project/"  + filename,
+    async: false,
+    success: function (csvd) {
+        data = $.csv.toArrays(csvd);
+        init(data);
+    }
+});
 
 function highlightColor(highlightcounter) {
     colorArr = ["#ce398c", "yellow", "#3ddc5c"];
@@ -354,7 +317,15 @@ function ResetFilter() {
     location.reload();
 }
 
-//Random color generator function
+function get_random_color() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#4F';
+    for (var i = 0; i < 1; i++) {
+        color += letters[Math.floor(Math.random() * letters.length)];
+    }
+    return color;
+}
+
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -370,7 +341,6 @@ function SetValues() {
     ResetPlot();
 }
 
-// Find Transpose matrix of data array. 
 function Transpose(data) {
     var transposeArray = data[0].map(function (col, i) {
         return data.map(function (row) {
@@ -493,16 +463,13 @@ function SetFilter(transpose_data) {
     }
 
 }
-
-// This function returns subset of data. This function is called from rangefiler. is this useful to filter numerical data using range.
-// This is standard code on internet if we find how to get subset of array using javascript we get this code.
 function ArraySubset1(index, data, fromvalue, tovalue ) {
     var result = $.grep(data, function (v, i) {
         return (v[index] >= fromvalue && v[index] <= tovalue);
     });
     return (result);
 }
-// Similarly, ArraySubset gives subset for dimension filter.
+
 function ArraySubset(index, data, filter_value) {
     var result = $.grep(data, function (v, i) {
         return v[index] === filter_value;
@@ -511,26 +478,22 @@ function ArraySubset(index, data, filter_value) {
     
 }
 
-//This is a first function get called after data file reading is completed using ajax call.
 function init(data) {
     var color = ["red", "black", "orange", "yellow"]
 
-    //setting up left hand side data filters
+    //setting up filters
     transpose_data = Transpose(data);
     SetFilter(transpose_data);
 
-    //create a regular starplot
+    //create starplot
     CreateDatapath(svg, data);
 
-    // create a copy of main data array in rarray, at this point rarray and data array are two arrays with same exact data copy.
-    // In javascript a copy of array cannot be created like rarray = data, because this will just assign reference of data.
-    //if we try to manipulate rarray then data array will also change so we copy data using following code. Again this is a standard code on internet
+    //copy of main data array in rarray
     rarray = data.map(function (arr) {
         return arr.slice();
     });
 }
 
-//Reset plot will remove all the svg elements and again redraw the starplot.
 function ResetPlot() {
     $(Axisgroup).remove();
     $(circlegroup).remove();
@@ -540,8 +503,6 @@ function ResetPlot() {
     CreateDatapath(svg, data);
 }
 
-//This function will normalize data. Idea behind nomalization is that, find maximum data value in a dimension and then divide every datavalue of that column 
-// by maximum value. By doing this we can normalize data between 0 and 1. 
 function NormalizeData(data, dimensions) {
     var normalize_data = data.map(function (arr) {
         return arr.slice();
@@ -558,10 +519,8 @@ function NormalizeData(data, dimensions) {
     return normalize_data;
 }
 
-// This function will draw inner and outer ring circles. This functions is called when creteAxis function is executing.
 function circle(svg, level, tempradius) {
     var circle1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    // if Shited Origin checkbox is checked and but starplot level is 1 then use following code
     if (($('#cbox:checked').length) > 0 && (level == 1)) {
         $(circle1).attr({ "cx": x_center, "cy": y_center, "r": tempradius * (innerRadius/100), "stroke": "#666563", "stroke-width": 1, "fill": "none" })
         $(circlegroup).append(circle1);
@@ -571,20 +530,22 @@ function circle(svg, level, tempradius) {
     $(circlegroup).append(circle);
 }
 
-//This function will create starplot Axes. 
+function point(svg, r, x,y) {
+    var point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    $(point).attr({ "cx": x, "cy": y, "r": r*0.1, "stroke": "darkgrey", "stroke-width": 1, "fill": "grey" })
+    svg.append(point);
+}
+
 function CreateAxis(svg, dimensions, tempradius) {
 
-    //create Axisgroup svg element to while we will attach our starplot. Attach this axisgroup to svg variable
     Axisgroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(Axisgroup);
 
-    //initial plot parameters
-    var levelofplotting = 1; // this variable increment depends upon which level is currently being drawn
+    var levelofplotting = 1;
     var axisLabelCounter = 1;
-    var totaldimensioncounted = 0; //We need to keep track of total dimensions are currently drawn.
+    var totaldimensioncounted = 0;
     for (i = 1; i <= totalplotlevels; i++) {
 
-        // calculate dimensioncount using the formula. In last plot level take all the dimensionas which are remaining
         if (i < totalplotlevels) {
             dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
             dimensioncount = Math.floor(dimensioncount);
@@ -594,7 +555,6 @@ function CreateAxis(svg, dimensions, tempradius) {
             dimensioncount = dimensions - totaldimensioncounted;
         }
 
-        //We need to shift the origin depends upon the plot level.
         origin = ((i <= 1 && ($('#cbox:checked').length > 0)) ? (innerRadius/100) : 0);  //Shifting origin
 
         for (j = 1; j <= (dimensioncount) ; j++) {
@@ -611,7 +571,6 @@ function CreateAxis(svg, dimensions, tempradius) {
             newpath.setAttributeNS(null, "d", "M" + (x) + " " + (y) + "L" + cos_theta + " " + sin_theta);
 
             $(Axisgroup).append(newpath);
-            //Here label is a dimension number.
             label = document.createElementNS("http://www.w3.org/2000/svg", "text");
             label.setAttribute("class", "label")
             if (sin_theta < y) {
@@ -632,9 +591,8 @@ function CreateAxis(svg, dimensions, tempradius) {
     }
 }
 
-// This function will create background starplot
 function CreateDatapath(svg, data) {
-    //calculating a radius
+    //calculating radius
     var tempradius;
     if (totalplotlevels > 1) {
         tempradius = (radius / totalplotlevels);
@@ -644,28 +602,23 @@ function CreateDatapath(svg, data) {
         tempradius = radius;
     }
     
-    //calculating dimensions. 
+    //calculating dimensions
     dimensions = data[0].length - 1;
 
     //creating circle
     circlegroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(circlegroup);
 
-    //createAxis function is called
     CreateAxis(svg, dimensions, tempradius);
-
-    //then data normalization happens
 
     normalize_data = NormalizeData(data, dimensions);//normalize data between 1 and 0
     background = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svg.append(background);
 
-    //background svg element is created with class name background.
     background.setAttributeNS(null, "class", "background");
         var levelofplotting = 1;
         dp = 0;   //dimensionposition
         var totaldimensioncounted = 0;
-    //Once all the dimension axes are plotted then for every plot level draw each data point.
     for (k = 1; k <= totalplotlevels; k++) {
         if (k < totalplotlevels) {
             dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
@@ -676,8 +629,6 @@ function CreateDatapath(svg, data) {
             dimensioncount = dimensions - totaldimensioncounted;
         }
         origin = ((k <= 1 && ($('#cbox:checked').length > 0)) ? (innerRadius/100 + 0.1) : 0);  //Shifting origin by 10px more than inner radius
-
-        // For each plot level draw all the datapoints. To understand following code read how to a ldraw ine using two points in svg on internet.
         for (i = 1; i < normalize_data.length; i++) {
 
             var newpath, dataline;
@@ -696,6 +647,14 @@ function CreateDatapath(svg, data) {
                 
                 x = x_center + Math.cos(theta) * (tempradius + 5) * (k - 1) + Math.cos(theta) * (tempradius) * origin;// moving to point where graph can begin
                 y = y_center + Math.sin(theta) * (tempradius + 5) * (k - 1) + Math.sin(theta) * (tempradius) * origin;
+                //var count_datapoint;  
+                //count_datapoint = 0;
+                //counting datapoints
+                //for (l = 1; l < normalize_data.length ; l++) {
+                //    if (normalize_data[i][dp + j] == normalize_data[l][dp + j]) {
+                //        count_datapoint++;
+                //    }
+                //}
 
                 if (j < 2) {
                     cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
@@ -713,9 +672,17 @@ function CreateDatapath(svg, data) {
                     cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     dataline = dataline + "L" + cos_theta + " " + sin_theta;
-                   
-                }
 
+                    //legendLabels = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    //legendLabels.setAttribute("class", "data");
+                    //legendLabels.setAttributeNS(null, "x", cos_theta);
+                    //legendLabels.setAttributeNS(null, "y", sin_theta);
+                    //legendLabels.textContent = normalize_data[i][dp + j];
+                    
+                }
+                //if (count_datapoint > 1) {
+                //    point(svg, count_datapoint, cos_theta, sin_theta);
+                //}
             }
             newpath.setAttributeNS(null, "stroke", "#F0FFF0")
             newpath.setAttributeNS(null, "d", dataline + "z");
@@ -727,7 +694,6 @@ function CreateDatapath(svg, data) {
     }
 }
 
-// This function will create foreground starplot similar CreateDatapath background datapath
 function CreateDatapath1(svg, subset_data) {
 
     var tempradius;
@@ -795,7 +761,12 @@ function CreateDatapath1(svg, subset_data) {
                 x = x_center + Math.cos(theta) * (tempradius + 5) * (k - 1) + Math.cos(theta) * tempradius * origin;// moving to point where graph can begin
                 y = y_center + Math.sin(theta) * (tempradius + 5) * (k - 1) + Math.sin(theta) * tempradius * origin;
                 count_datapoint = 0;
-                
+                //counting datapoints
+                //for (l = 1; l < normalize_data.length ; l++) {
+                //    if (normalize_data[i][dp + j] == normalize_data[l][dp + j]) {
+                //        count_datapoint++;
+                //    }
+                //}
 
                 if (j < 2) {
                     cos_theta = x + Math.cos(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
@@ -807,7 +778,9 @@ function CreateDatapath1(svg, subset_data) {
                     sin_theta = y + Math.sin(theta) * Math.abs(normalize_data[i][dp + j] - origin) * (tempradius - 20);
                     dataline = dataline + "L" + cos_theta + " " + sin_theta;
                 }
-                
+                //if (count_datapoint > 1) {
+                //    point(svg, count_datapoint, cos_theta, sin_theta);
+                //}
             }
 
 
@@ -822,3 +795,43 @@ function CreateDatapath1(svg, subset_data) {
 
 }
 
+function CreateLegend() {
+    legendGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svg.append(legendGroup);
+
+    var levelofplotting = 1;
+
+    var totaldimensioncounted = 0;
+    for (i = 1; i <= totalplotlevels; i++) {
+
+        if (i < totalplotlevels) {
+            dimensioncount = dimensions * levelofplotting / (totalplotlevels * totalplotlevels); //counting dimensions
+            dimensioncount = Math.floor(dimensioncount);
+            totaldimensioncounted = totaldimensioncounted + dimensioncount;
+        }
+        else {
+            dimensioncount = dimensions - totaldimensioncounted;
+        }
+
+        origin = ((i <= 1 && ($('#cbox:checked').length > 0)) ? 0.2 : 0);  //Shifting origin
+
+        for (j = 1; j <= (dimensioncount) ; j++) {
+
+            var theta = (j / dimensioncount) * Math.PI * 2;
+            x = x_center + Math.cos(theta) * tempradius * (i - 1) + Math.cos(theta) * tempradius * origin;
+            y = y_center + Math.sin(theta) * tempradius * (i - 1) + Math.sin(theta) * tempradius * origin;
+
+            var cos_theta = x_center + Math.cos(theta) * tempradius * i;
+            var sin_theta = y_center + Math.sin(theta) * tempradius * i;
+
+            newpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            newpath.setAttributeNS(null, "id", "axisid_" + j);
+            newpath.setAttributeNS(null, "class", "axis");
+            newpath.setAttributeNS(null, "d", "M" + (x) + " " + (y) + "L" + cos_theta + " " + sin_theta);
+            $(Axisgroup).append(newpath);
+
+        }
+        circle(svg, i, tempradius);
+        levelofplotting = 2 * i + 1;
+    }
+}
