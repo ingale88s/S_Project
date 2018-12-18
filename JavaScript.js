@@ -33,7 +33,7 @@ function getUrlParameter(name) {
 //This is a starting point of a program. Ajax script reads file provided by url and save into data array.
 //After reading file is complted init function is called where data array is passed.
 $.ajax({
-    url: "https://ingale88s.github.io/S_Project/"  + filename,
+    url: "https://ingale88s.github.io/Starplot/"  + filename,
     async: false,
     success: function (csvd) {
         data = $.csv.toArrays(csvd);
