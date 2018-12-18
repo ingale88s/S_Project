@@ -117,7 +117,7 @@ $(document).ready(function () {
     //selectfile id is for select file dropdown on right hand side
     $("#selectfile").change(function () {
         filename = $(this).find('option:selected').val();
-        window.open("https://ingale88s.github.io/S_Project?filename=" + filename)
+        window.open("https://ingale88s.github.io/Starplot?filename=" + filename)
     });
 
     //cbox1 id is for enable grid checkbox on right hand side. After clicking this check box, 10 smallers circles are plotted on top of starplot
